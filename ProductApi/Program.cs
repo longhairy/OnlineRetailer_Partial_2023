@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProductApi.BusinessLogic;
 using ProductApi.Data;
 using ProductApi.Models;
 
@@ -10,6 +11,9 @@ builder.Services.AddDbContext<ProductApiContext>(opt => opt.UseInMemoryDatabase(
 
 // Register repositories for dependency injection
 builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
+
+// Register Converter for dependency injection
+builder.Services.AddSingleton<IConverter<Product, ProductDto>, ProductConverter>();
 
 // Register database initializer for dependency injection
 builder.Services.AddTransient<IDbInitializer, DbInitializer>();
