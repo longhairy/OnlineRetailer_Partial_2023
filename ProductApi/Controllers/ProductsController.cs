@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductApi.Data;
 using ProductApi.Models;
+using SharedModels;
 
 namespace ProductApi.Controllers
 {
@@ -18,7 +19,7 @@ namespace ProductApi.Controllers
 
         // GET products
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public IEnumerable<ProductDto> Get()
         {
             return repository.GetAll();
         }
