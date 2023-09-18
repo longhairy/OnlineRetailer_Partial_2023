@@ -14,9 +14,13 @@ namespace OrderApi.Controllers
     {
         private readonly IRepository<Order> repository;
 
-        public OrdersController(IRepository<Order> repos)
+        private readonly IConverter<Order, OrderDto> orderConverter;
+
+        public OrdersController(IRepository<Order> repos, IConverter<Order, OrderDto> orderConverter)
         {
             repository = repos;
+            this.orderConverter = orderConverter;
+
         }
 
         // GET: orders
