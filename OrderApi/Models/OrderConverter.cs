@@ -8,11 +8,11 @@ namespace OrderApi.Models
         {
             return new Order
             {
-                //Id = sharedProduct.Id,
-                //Name = sharedProduct.Name,
-                //Price = sharedProduct.Price,
-                //ItemsInStock = sharedProduct.ItemsInStock,
-                //ItemsReserved = sharedProduct.ItemsReserved
+                Id = sharedOrder.Id,
+                Date = sharedOrder.Date,
+                CustomerId = sharedOrder.CustomerId,
+                Status = (Order.OrderStatus)sharedOrder.Status,
+                OrderLines = (IList<OrderLine>)sharedOrder.OrderLines
             };
         }
 
@@ -20,11 +20,11 @@ namespace OrderApi.Models
         {
             return new OrderDto
             {
-                //Id = hiddenProduct.Id,
-                //Name = hiddenProduct.Name,
-                //Price = hiddenProduct.Price,
-                //ItemsInStock = hiddenProduct.ItemsInStock,
-                //ItemsReserved = hiddenProduct.ItemsReserved
+                Id = hiddenOrder.Id,
+                Date = hiddenOrder.Date,
+                CustomerId = hiddenOrder.CustomerId,
+                Status = (OrderDto.OrderStatus)hiddenOrder.Status,
+                OrderLines = (IList<SharedModels.OrderLine>)hiddenOrder.OrderLines
             };
         }
     }
