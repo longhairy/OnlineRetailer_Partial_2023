@@ -6,17 +6,17 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["CustomerApi/CustomerApi.csproj", "CustomerApi/"]
+COPY ["ProductApi/ProductApi.csproj", "ProductApi/"]
 COPY ["SharedModels/SharedModels.csproj", "SharedModels/"]
-RUN dotnet restore "CustomerApi/CustomerApi.csproj"
+RUN dotnet restore "ProductApi/ProductApi.csproj"
 COPY . .
-WORKDIR "/src/CustomerApi"
-RUN dotnet build "CustomerApi.csproj" -c Release -o /app/build
+WORKDIR "/src/ProductApi"
+RUN dotnet build "ProductApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "CustomerApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ProductApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CustomerApi.dll"]
+ENTRYPOINT ["dotnet", "ProductApi.dll"]
