@@ -7,6 +7,5 @@
         public decimal Price { get; set; }
         public int ItemsInStock { get; set; }
         public int ItemsReserved { get; set; }
-        public decimal PurchacePrice { get; set; }
     }
 }
