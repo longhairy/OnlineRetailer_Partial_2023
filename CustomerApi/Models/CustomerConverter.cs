@@ -8,11 +8,13 @@ namespace CustomerApi.Models
         {
             return new Customer
             {
-                //Id = sharedProduct.Id,
-                //Name = sharedProduct.Name,
-                //Price = sharedProduct.Price,
-                //ItemsInStock = sharedProduct.ItemsInStock,
-                //ItemsReserved = sharedProduct.ItemsReserved
+             CustomerId = sharedCustomer.CustomerId,
+             Name = sharedCustomer.Name,
+             Email = sharedCustomer.Email,
+             Phone = sharedCustomer.Phone,
+             BillingAddress = sharedCustomer.BillingAddress,
+             ShippingAddress = sharedCustomer.ShippingAddress,
+             CreditStanding = sharedCustomer.CreditStanding,
             };
         }
 
@@ -20,11 +22,13 @@ namespace CustomerApi.Models
         {
             return new CustomerDto
             {
-                //Id = hiddenProduct.Id,
-                //Name = hiddenProduct.Name,
-                //Price = hiddenProduct.Price,
-                //ItemsInStock = hiddenProduct.ItemsInStock,
-                //ItemsReserved = hiddenProduct.ItemsReserved
+                CustomerId = hiddenCustomer.CustomerId,
+                Name = hiddenCustomer.Name,
+                Email = hiddenCustomer.Email,
+                Phone = hiddenCustomer.Phone,
+                BillingAddress = hiddenCustomer.BillingAddress,
+                ShippingAddress = hiddenCustomer.ShippingAddress,
+                CreditStanding = hiddenCustomer.CreditStanding,
             };
         }
     }
