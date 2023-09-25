@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Data;
+using ProductApi.Infrastructure;
 using ProductApi.Models;
 using SharedModels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string ConnectionString = "host=goose-01.rmq2.cloudamqp.com;virtualHost=suwoyvyw;username=suwoyvyw;password=MaEUT7-L6AdEM5jLGvtXTIBpLzGwfcLc";
 
 // Add services to the container.
 
@@ -40,6 +43,10 @@ using (var scope = app.Services.CreateScope())
     var dbInitializer = services.GetService<IDbInitializer>();
     dbInitializer.Initialize(dbContext);
 }
+
+
+Task.Factory.StartNew(() =>
+    new MessageListener(app.Services, ConnectionString).Start());
 
 //app.UseHttpsRedirection();
 

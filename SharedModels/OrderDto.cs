@@ -13,6 +13,7 @@ namespace SharedModels
 
         public enum OrderStatus
         {
+            tentative,
             cancelled,
             completed,
             shipped,

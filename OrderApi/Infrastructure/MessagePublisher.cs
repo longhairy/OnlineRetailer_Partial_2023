@@ -19,16 +19,15 @@ namespace OrderApi.Infrastructure
             bus.Dispose();
         }
 
-        public void PublishOrderCreatedMessage(int? customerId, int orderId, IList<OrderLine> orderLines)
+        public void PublishOrderStatusChangedMessage(int? customerId, IList<OrderLine> orderLines, string topic)
         {
-            var message = new OrderCreatedMessage
+            var message = new OrderStatusChangedMessage
             { 
                 CustomerId = customerId,
-                OrderId = orderId,
                 OrderLines = orderLines 
             };
 
-            bus.PubSub.Publish(message);
+            bus.PubSub.Publish(message, topic);
         }
 
     }

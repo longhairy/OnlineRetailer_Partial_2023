@@ -12,7 +12,7 @@ namespace OrderApi.Models
                 Date = sharedOrder.Date,
                 CustomerId = sharedOrder.CustomerId,
                 Status = (Order.OrderStatus)sharedOrder.Status,
-                OrderLines = (IList<OrderLine>)sharedOrder.OrderLines
+                OrderLines = sharedOrder.OrderLines.Select(Convert).ToList()
             };
         }
 
@@ -24,9 +24,32 @@ namespace OrderApi.Models
                 Date = hiddenOrder.Date,
                 CustomerId = hiddenOrder.CustomerId,
                 Status = (OrderDto.OrderStatus)hiddenOrder.Status,
-                OrderLines = (IList<SharedModels.OrderLine>)hiddenOrder.OrderLines
+                OrderLines = hiddenOrder.OrderLines.Select(Convert).ToList()
+            };
+        }
+
+        private OrderLine Convert(SharedModels.OrderLine sharedOrderLine)
+        {
+            return new OrderLine
+            {
+                Id = sharedOrderLine.Id,
+                OrderId = sharedOrderLine.OrderId,
+                ProductId = sharedOrderLine.ProductId,
+                Quantity = sharedOrderLine.Quantity
+            };
+        }
+
+        private SharedModels.OrderLine Convert(OrderLine hiddenOrderLine)
+        {
+            return new SharedModels.OrderLine
+            {
+                Id = hiddenOrderLine.Id,
+                OrderId = hiddenOrderLine.OrderId,
+                ProductId = hiddenOrderLine.ProductId,
+                Quantity = hiddenOrderLine.Quantity
             };
         }
     }
 }
+
 

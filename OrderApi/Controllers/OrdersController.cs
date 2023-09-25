@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using OrderApi.Data;
+using OrderApi.Infrastructure;
 using OrderApi.Models;
 using RestSharp;
 using SharedModels;
@@ -15,11 +16,19 @@ namespace OrderApi.Controllers
         private readonly IRepository<Order> repository;
 
         private readonly IConverter<Order, OrderDto> orderConverter;
+        private IMessagePublisher messagePublisher;
+        IServiceGateway<ProductDto> productServiceGateway;
 
-        public OrdersController(IRepository<Order> repos, IConverter<Order, OrderDto> orderConverter)
+        public OrdersController(
+            IRepository<Order> repos, 
+            IConverter<Order, OrderDto> orderConverter,
+            IServiceGateway<ProductDto> gateway,
+            IMessagePublisher publisher)
         {
             repository = repos;
             this.orderConverter = orderConverter;
+            productServiceGateway = gateway;
+            messagePublisher = publisher;
 
         }
 
@@ -44,44 +53,62 @@ namespace OrderApi.Controllers
 
         // POST orders
         [HttpPost]
-        public IActionResult Post([FromBody]Order order)
+        public IActionResult Post([FromBody]Order hiddenOrder)
         {
-            if (order == null)
+            if (hiddenOrder == null)
             {
                 return BadRequest();
             }
-
+            OrderDto order = orderConverter.Convert(hiddenOrder);
             if (ProductItemsAvailable(order))
             {
-                // Update the number of items reserved for the ordered products,
-                // and create a new order.
-                if (UpdateItemsReserved(order))
+                try
                 {
+                    // Publish OrderStatusChangedMessage. If this operation
+                    // fails, the order will not be created
+                    messagePublisher.PublishOrderStatusChangedMessage(
+                        order.CustomerId, order.OrderLines, "completed");
+
                     // Create order.
-                    order.Status = Order.OrderStatus.completed;
-                    var newOrder = repository.Add(order);
-                    return CreatedAtRoute("GetOrder",
-                        new { id = newOrder.Id }, newOrder);
+                    order.Status = OrderDto.OrderStatus.completed;
+                    var newOrder = repository.Add(orderConverter.Convert(order));
+                    return CreatedAtRoute("GetOrder", new { id = newOrder.Id }, newOrder);
+                }
+                catch
+                {
+                    return StatusCode(500, "An error happened. Try again.");
                 }
             }
+            else
+            {
+                // If there are not enough product items available.
+                return StatusCode(500, "Not enough items in stock.");
+            }
 
-            // If the order could not be created, "return no content".
-            return NoContent();
+            //if (ProductItemsAvailable(order))
+            //{
+            //    // Update the number of items reserved for the ordered products,
+            //    // and create a new order.
+            //    if (UpdateItemsReserved(order))
+            //    {
+            //        // Create order.
+            //        order.Status = Order.OrderStatus.completed;
+            //        var newOrder = repository.Add(order);
+            //        return CreatedAtRoute("GetOrder",
+            //            new { id = newOrder.Id }, newOrder);
+            //    }
+            //}
+
+            //// If the order could not be created, "return no content".
+            //return NoContent();
         }
 
-
-        private bool ProductItemsAvailable(Order order)
+        private bool ProductItemsAvailable(OrderDto order)
         {
             foreach (var orderLine in order.OrderLines)
             {
                 // Call product service to get the product ordered.
-                // You may need to change the port number in the BaseUrl below
-                // before you can run the request.
-                RestClient c = new RestClient("http://productapi/products/");
-                var request = new RestRequest(orderLine.ProductId.ToString());
-                var response = c.GetAsync<ProductDto>(request);
-                response.Wait();
-                var orderedProduct = response.Result;
+                var orderedProduct = productServiceGateway.Get(orderLine.ProductId);
                 if (orderLine.Quantity > orderedProduct.ItemsInStock - orderedProduct.ItemsReserved)
                 {
                     return false;
@@ -90,31 +117,51 @@ namespace OrderApi.Controllers
             return true;
         }
 
-        private bool UpdateItemsReserved(Order order)
-        {
-            foreach (var orderLine in order.OrderLines)
-            {
-                // Call product service to get the product ordered.
-                // You may need to change the port number in the BaseUrl below
-                // before you can run the request.
-                RestClient c = new RestClient("http://productapi/products/");
-                var request = new RestRequest(orderLine.ProductId.ToString());
-                var response = c.GetAsync<ProductDto>(request);
-                response.Wait();
-                var orderedProduct = response.Result;
-                orderedProduct.ItemsReserved += orderLine.Quantity;
+        //private bool ProductItemsAvailable(Order order)
+        //{
+        //    foreach (var orderLine in order.OrderLines)
+        //    {
+        //        // Call product service to get the product ordered.
+        //        // You may need to change the port number in the BaseUrl below
+        //        // before you can run the request.
+        //        RestClient c = new RestClient("http://productapi/products/");
+        //        var request = new RestRequest(orderLine.ProductId.ToString());
+        //        var response = c.GetAsync<ProductDto>(request);
+        //        response.Wait();
+        //        var orderedProduct = response.Result;
+        //        if (orderLine.Quantity > orderedProduct.ItemsInStock - orderedProduct.ItemsReserved)
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
 
-                // Call product service to update the number of items reserved
-                var updateRequest = new RestRequest(orderedProduct.Id.ToString());
-                updateRequest.AddJsonBody(orderedProduct);
-                var updateResponse = c.PutAsync(updateRequest);
-                updateResponse.Wait();
-                if (!updateResponse.IsCompletedSuccessfully)
-                    return false;
+        //private bool UpdateItemsReserved(Order order)
+        //{
+        //    foreach (var orderLine in order.OrderLines)
+        //    {
+        //        // Call product service to get the product ordered.
+        //        // You may need to change the port number in the BaseUrl below
+        //        // before you can run the request.
+        //        RestClient c = new RestClient("http://productapi/products/");
+        //        var request = new RestRequest(orderLine.ProductId.ToString());
+        //        var response = c.GetAsync<ProductDto>(request);
+        //        response.Wait();
+        //        var orderedProduct = response.Result;
+        //        orderedProduct.ItemsReserved += orderLine.Quantity;
 
-            }
-            return true;
-        }
+        //        // Call product service to update the number of items reserved
+        //        var updateRequest = new RestRequest(orderedProduct.Id.ToString());
+        //        updateRequest.AddJsonBody(orderedProduct);
+        //        var updateResponse = c.PutAsync(updateRequest);
+        //        updateResponse.Wait();
+        //        if (!updateResponse.IsCompletedSuccessfully)
+        //            return false;
+
+        //    }
+        //    return true;
+        //}
 
     }
 }
