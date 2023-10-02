@@ -15,37 +15,39 @@ namespace OrderApi.Data
             db = context;
         }
 
-        Order IRepository<Order>.Add(Order entity)
+         public async Task<Order> AddAsync(Order entity)
         {
             if (entity.Date == null)
                 entity.Date = DateTime.Now;
             
             var newOrder = db.Orders.Add(entity).Entity;
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return newOrder;
         }
 
-        void IRepository<Order>.Edit(Order entity)
+        public async Task EditAsync(Order entity)
         {
             db.Entry(entity).State = EntityState.Modified;
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
-        Order IRepository<Order>.Get(int id)
+        public async Task<Order> GetAsync(int id)
         {
-            return db.Orders.FirstOrDefault(o => o.Id == id);
+            return await db.Orders.FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        IEnumerable<Order> IRepository<Order>.GetAll()
+        public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return db.Orders.ToList();
+            return await db.Orders.ToListAsync();
         }
 
-        void IRepository<Order>.Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            var order = db.Orders.FirstOrDefault(p => p.Id == id);
+            var order = await db.Orders.FirstOrDefaultAsync(p => p.Id == id);
             db.Orders.Remove(order);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
+
+      
     }
 }

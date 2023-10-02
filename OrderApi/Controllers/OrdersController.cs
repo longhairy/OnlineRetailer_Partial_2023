@@ -35,18 +35,18 @@ namespace OrderApi.Controllers
 
         }
 
-        // GET: orders
-        [HttpGet]
-        public IEnumerable<Order> Get()
+       // GET: orders
+       [HttpGet]
+        public async Task <IEnumerable<Order>> GetAsync()
         {
-            return repository.GetAll();
+            return await repository.GetAllAsync();
         }
 
         // GET orders/5
         [HttpGet("{id}", Name = "GetOrder")]
-        public IActionResult Get(int id)
+        public async Task <IActionResult> GetAsync(int id)
         {
-            var item = repository.Get(id);
+            var item = await repository.GetAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -56,7 +56,7 @@ namespace OrderApi.Controllers
 
         // POST orders
         [HttpPost]
-        public IActionResult Post([FromBody]Order hiddenOrder)
+        public async Task<IActionResult> PostAsync([FromBody]Order hiddenOrder)
         {
             if (hiddenOrder == null)
             {
@@ -64,17 +64,17 @@ namespace OrderApi.Controllers
             }
             OrderDto order = orderConverter.Convert(hiddenOrder);
 
-            if (order.CustomerId==null||!CustomerExists((int)order.CustomerId))
+            if (order.CustomerId==null||!await CustomerExists((int)order.CustomerId))
             {
                 return StatusCode(500, "Customer does not exist");
             }
-            if (!CustomerHasGoodCreditStanding((int)order.CustomerId))
+            if (!await CustomerHasGoodCreditStanding((int)order.CustomerId))
             {
                 return StatusCode(500, "Customer has unpaid orders");
             }
 
 
-            if (ProductItemsAvailable(order))
+            if (await ProductItemsAvailable(order))
             {
                 try
                 {
@@ -85,7 +85,7 @@ namespace OrderApi.Controllers
 
                     // Create order.
                     order.Status = OrderDto.OrderStatus.completed;
-                    var newOrder = repository.Add(orderConverter.Convert(order));
+                    var newOrder = await repository.AddAsync(orderConverter.Convert(order));
                     return CreatedAtRoute("GetOrder", new { id = newOrder.Id }, newOrder);
                 }
                 catch
@@ -99,44 +99,31 @@ namespace OrderApi.Controllers
                 return StatusCode(500, "Not enough items in stock.");
             }
 
-            //if (ProductItemsAvailable(order))
-            //{
-            //    // Update the number of items reserved for the ordered products,
-            //    // and create a new order.
-            //    if (UpdateItemsReserved(order))
-            //    {
-            //        // Create order.
-            //        order.Status = Order.OrderStatus.completed;
-            //        var newOrder = repository.Add(order);
-            //        return CreatedAtRoute("GetOrder",
-            //            new { id = newOrder.Id }, newOrder);
-            //    }
-            //}
+         
 
-            //// If the order could not be created, "return no content".
-            //return NoContent();
+           
         }
 
-        private bool CustomerExists(int customerId)
+        private async Task<bool> CustomerExists(int customerId)
         {
-            var customer = customerServiceGateway.Get(customerId);
+            var customer = await customerServiceGateway.GetAsync(customerId);
             if (customer == null)
             { return false; }
             return true;
         }
 
-        private bool CustomerHasGoodCreditStanding(int customerId)
+        private async Task<bool> CustomerHasGoodCreditStanding(int customerId)
         {
-            var customer = customerServiceGateway.Get(customerId);
+            var customer = await customerServiceGateway.GetAsync(customerId);
             return customer.HasGoodCreditStanding;
         }
 
-        private bool ProductItemsAvailable(OrderDto order)
+        private async Task<bool> ProductItemsAvailable(OrderDto order)
         {
             foreach (var orderLine in order.OrderLines)
             {
                 // Call product service to get the product ordered.
-                var orderedProduct = productServiceGateway.Get(orderLine.ProductId);
+                var orderedProduct = await productServiceGateway.GetAsync(orderLine.ProductId);
                 if (orderLine.Quantity > orderedProduct.ItemsInStock - orderedProduct.ItemsReserved)
                 {
                     return false;
@@ -145,51 +132,6 @@ namespace OrderApi.Controllers
             return true;
         }
 
-        //private bool ProductItemsAvailable(Order order)
-        //{
-        //    foreach (var orderLine in order.OrderLines)
-        //    {
-        //        // Call product service to get the product ordered.
-        //        // You may need to change the port number in the BaseUrl below
-        //        // before you can run the request.
-        //        RestClient c = new RestClient("http://productapi/products/");
-        //        var request = new RestRequest(orderLine.ProductId.ToString());
-        //        var response = c.GetAsync<ProductDto>(request);
-        //        response.Wait();
-        //        var orderedProduct = response.Result;
-        //        if (orderLine.Quantity > orderedProduct.ItemsInStock - orderedProduct.ItemsReserved)
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    return true;
-        //}
-
-        //private bool UpdateItemsReserved(Order order)
-        //{
-        //    foreach (var orderLine in order.OrderLines)
-        //    {
-        //        // Call product service to get the product ordered.
-        //        // You may need to change the port number in the BaseUrl below
-        //        // before you can run the request.
-        //        RestClient c = new RestClient("http://productapi/products/");
-        //        var request = new RestRequest(orderLine.ProductId.ToString());
-        //        var response = c.GetAsync<ProductDto>(request);
-        //        response.Wait();
-        //        var orderedProduct = response.Result;
-        //        orderedProduct.ItemsReserved += orderLine.Quantity;
-
-        //        // Call product service to update the number of items reserved
-        //        var updateRequest = new RestRequest(orderedProduct.Id.ToString());
-        //        updateRequest.AddJsonBody(orderedProduct);
-        //        var updateResponse = c.PutAsync(updateRequest);
-        //        updateResponse.Wait();
-        //        if (!updateResponse.IsCompletedSuccessfully)
-        //            return false;
-
-        //    }
-        //    return true;
-        //}
-
+       
     }
 }

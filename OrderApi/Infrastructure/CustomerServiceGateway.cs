@@ -13,14 +13,12 @@ namespace OrderApi.Infrastructure
             customerServiceBaseUrl = baseUrl;
         }
 
-        public CustomerDto Get(int id)
+        public async Task<CustomerDto> GetAsync(int id)
         {
             RestClient c = new RestClient(customerServiceBaseUrl);
 
             var request = new RestRequest(id.ToString());
-            var response = c.GetAsync<CustomerDto>(request);
-            response.Wait();
-            return response.Result;
+            return await c.GetAsync<CustomerDto>(request);
         }
     }
 }
