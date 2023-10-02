@@ -10,6 +10,7 @@ string ConnectionString = "host=goose-01.rmq2.cloudamqp.com;virtualHost=suwoyvyw
 // Add services to the container.
 
 string productServiceBaseUrl = "http://productapi/products/";
+string customerServiceBaseUrl = "http://customerapi/customers/";
 
 
 
@@ -24,6 +25,11 @@ builder.Services.AddTransient<IDbInitializer, DbInitializer>();
 // Register product service gateway for dependency injection
 builder.Services.AddSingleton<IServiceGateway<ProductDto>>(new
     ProductServiceGateway(productServiceBaseUrl));
+
+// Register product service gateway for dependency injection
+builder.Services.AddSingleton<IServiceGateway<CustomerDto>>(new
+    CustomerServiceGateway(customerServiceBaseUrl));
+
 
 // Register MessagePublisher (a messaging gateway) for dependency injection
 builder.Services.AddSingleton<IMessagePublisher>(new

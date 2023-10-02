@@ -3,8 +3,10 @@ using CustomerApi.Data;
 using CustomerApi.Models;
 using SharedModels;
 using System;
+using CustomerApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+string ConnectionString = "host=goose-01.rmq2.cloudamqp.com;virtualHost=suwoyvyw;username=suwoyvyw;password=MaEUT7-L6AdEM5jLGvtXTIBpLzGwfcLc";
 
 // Add services to the container.
 
@@ -43,6 +45,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 //app.UseHttpsRedirection();
+Task.Factory.StartNew(() =>
+    new MessageListener(app.Services, ConnectionString).Start());
+
 
 app.UseAuthorization();
 

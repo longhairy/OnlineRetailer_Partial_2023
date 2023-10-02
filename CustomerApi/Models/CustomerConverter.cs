@@ -14,7 +14,7 @@ namespace CustomerApi.Models
              Phone = sharedCustomer.Phone,
              BillingAddress = sharedCustomer.BillingAddress,
              ShippingAddress = sharedCustomer.ShippingAddress,
-             CreditStanding = sharedCustomer.CreditStanding,
+                HasGoodCreditStanding = sharedCustomer.HasGoodCreditStanding,
             };
         }
 
@@ -28,7 +28,7 @@ namespace CustomerApi.Models
                 Phone = hiddenCustomer.Phone,
                 BillingAddress = hiddenCustomer.BillingAddress,
                 ShippingAddress = hiddenCustomer.ShippingAddress,
-                CreditStanding = hiddenCustomer.CreditStanding,
+                HasGoodCreditStanding = hiddenCustomer.HasGoodCreditStanding,
             };
         }
     }

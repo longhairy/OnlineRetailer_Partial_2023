@@ -18,16 +18,19 @@ namespace OrderApi.Controllers
         private readonly IConverter<Order, OrderDto> orderConverter;
         private IMessagePublisher messagePublisher;
         IServiceGateway<ProductDto> productServiceGateway;
+        IServiceGateway<CustomerDto> customerServiceGateway;
 
         public OrdersController(
             IRepository<Order> repos, 
             IConverter<Order, OrderDto> orderConverter,
             IServiceGateway<ProductDto> gateway,
+            IServiceGateway<CustomerDto> customerGateway,
             IMessagePublisher publisher)
         {
             repository = repos;
             this.orderConverter = orderConverter;
             productServiceGateway = gateway;
+            customerServiceGateway = customerGateway;
             messagePublisher = publisher;
 
         }
@@ -60,6 +63,17 @@ namespace OrderApi.Controllers
                 return BadRequest();
             }
             OrderDto order = orderConverter.Convert(hiddenOrder);
+
+            if (order.CustomerId==null||!CustomerExists((int)order.CustomerId))
+            {
+                return StatusCode(500, "Customer does not exist");
+            }
+            if (!CustomerHasGoodCreditStanding((int)order.CustomerId))
+            {
+                return StatusCode(500, "Customer has unpaid orders");
+            }
+
+
             if (ProductItemsAvailable(order))
             {
                 try
@@ -101,6 +115,20 @@ namespace OrderApi.Controllers
 
             //// If the order could not be created, "return no content".
             //return NoContent();
+        }
+
+        private bool CustomerExists(int customerId)
+        {
+            var customer = customerServiceGateway.Get(customerId);
+            if (customer == null)
+            { return false; }
+            return true;
+        }
+
+        private bool CustomerHasGoodCreditStanding(int customerId)
+        {
+            var customer = customerServiceGateway.Get(customerId);
+            return customer.HasGoodCreditStanding;
         }
 
         private bool ProductItemsAvailable(OrderDto order)
