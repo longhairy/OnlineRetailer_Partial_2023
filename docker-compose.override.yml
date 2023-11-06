@@ -5,19 +5,25 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - "5080:80"
+    # ports:
+    #   - "5080:80"
    
   orderapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - "5081:80"
+    # ports:
+    #   - "5081:80"
 
   customerapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+    # ports:
+    #   - "5082:80"
+  apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "5082:80"
+      - "8001:80"
+

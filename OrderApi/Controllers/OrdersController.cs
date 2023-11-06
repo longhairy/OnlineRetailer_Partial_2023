@@ -53,7 +53,40 @@ namespace OrderApi.Controllers
             }
             return new ObjectResult(item);
         }
+        // GET orders/product/5
+        // This action method was provided to support request aggregate
+        // "Orders by product" in OnlineRetailerApiGateway.
+        [HttpGet("product/{id}", Name = "GetOrderByProduct")]
+        public async Task<IEnumerable<Order>> GetByProduct(int id)
+        {
+            List<Order> ordersWithSpecificProduct = new List<Order>();
+            var allorders = await repository.GetAllAsync();
+            foreach (var order in allorders)
+            {
+                if (order.OrderLines.Where(o => o.ProductId == id).Any())
+                {
+                    ordersWithSpecificProduct.Add(order);
+                }
+            }
 
+            return ordersWithSpecificProduct;
+        } 
+        // This action method was provided to support request aggregate
+        // "Orders by customer" in OnlineRetailerApiGateway.
+        [HttpGet("customer/{id}", Name = "GetOrderByCustomer")]
+        public async Task<IEnumerable<Order>> GetByCustomer(int id)
+        {
+            List<Order> ordersWithSpecificCustomer = new List<Order>();
+            var allorders = await repository.GetAllAsync();
+            foreach (var order in allorders)
+            {
+                if (order.CustomerId == id)
+                {
+                    ordersWithSpecificCustomer.Add(order);
+                }
+            }
+            return ordersWithSpecificCustomer;
+        }
         // POST orders
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody]Order hiddenOrder)

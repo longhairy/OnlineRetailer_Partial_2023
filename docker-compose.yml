@@ -18,3 +18,10 @@ services:
     build:
       context: .
       dockerfile: CustomerApi/Dockerfile
+
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+

@@ -1,0 +1,177 @@
+{
+  "Routes": [
+    {
+      // ProductApi routes for aggregate: Orders, customers and products
+      "DownstreamPathTemplate": "/products",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/productapi/products",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "Key": "allproducts"
+    },
+    {
+      // CustomerApi routes for aggregate: Orders, customers and products
+      "DownstreamPathTemplate": "/customers",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "customerapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/customerapi/customers",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "Key": "allcustomers"
+    },
+    {
+      // OrderApi routes for aggregate: Orders, customers and products
+      "DownstreamPathTemplate": "/orders",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orderapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/orderapi/orders",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "Key": "allorders"
+    },
+    {
+      // ProductApi routes for aggregate: Orders by product
+      "DownstreamPathTemplate": "/products/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/productapi/products/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "Key": "product"
+    },
+    {
+      // CustomerApi routes for aggregate: Orders by customer
+      "DownstreamPathTemplate": "/customers/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "customerapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/customerapi/customers/{id}",
+      "UpstreamHttpMethod": [ "Get", "Put", "Delete" ],
+      "Key": "customer"
+    },
+    {
+      // OrderApi routes for aggregate: Orders by product
+      // (this aggregate requires the OrderApi to implement a
+      //  "GET /orders/product/{id}" controller action method)
+      "DownstreamPathTemplate": "/orders/product/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orderapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/orderapi/orders/product/{id}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "Key": "ordersbyproduct"
+    },
+    {
+      // OrderApi routes for aggregate: Orders by customer
+      // (this aggregate requires the OrderApi to implement a
+      //  "GET /orders/customer/{id}" controller action method)
+      "DownstreamPathTemplate": "/orders/customer/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orderapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/orderapi/orders/customer/{id}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "Key": "ordersbycustomer"
+    },
+    {
+      // Other ProductApi routes
+      "DownstreamPathTemplate": "/{catchAll}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/productapi/{catchAll}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      // Other CustomerApi routes
+      "DownstreamPathTemplate": "/{catchAll}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "customerapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/customerapi/{catchAll}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      // Other OrderApi routes
+      "DownstreamPathTemplate": "/{catchAll}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "orderapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/orderapi/{catchAll}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    }
+  ],
+  // Aggregates:
+  "Aggregates": [
+    // Orders by product
+    {
+      "RouteKeys": [
+        "ordersbyproduct",
+        "product"
+      ],
+      "UpstreamPathTemplate": "/aggregates/ordersbyproduct/{id}"
+    },
+    // Orders by customer
+    {
+      "RouteKeys": [
+        "ordersbycustomer",
+        "customer"
+      ],
+      "UpstreamPathTemplate": "/aggregates/ordersbycustomer/{id}"
+    },
+    // Orders, customers and products
+    {
+      "RouteKeys": [
+        "allorders",
+        "allproducts",
+        "allcustomers"
+      ],
+      "UpstreamPathTemplate": "/aggregates/orders_customers_and_products"
+    }
+  ],
+  // Global configuration
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:8080"
+  }
+}
