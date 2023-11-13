@@ -3,6 +3,7 @@ using ProductApi.Data;
 using ProductApi.Infrastructure;
 using ProductApi.Models;
 using SharedModels;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,9 +50,12 @@ Task.Factory.StartNew(() =>
     new MessageListener(app.Services, ConnectionString).Start());
 
 //app.UseHttpsRedirection();
+app.UseHttpMetrics();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapMetrics();
 
 app.Run();

@@ -3,6 +3,7 @@ using OrderApi.Data;
 using OrderApi.Infrastructure;
 using OrderApi.Models;
 using SharedModels;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 string ConnectionString = "host=goose-01.rmq2.cloudamqp.com;virtualHost=suwoyvyw;username=suwoyvyw;password=MaEUT7-L6AdEM5jLGvtXTIBpLzGwfcLc";
@@ -62,9 +63,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 //app.UseHttpsRedirection();
+app.UseHttpMetrics();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapMetrics();
 
 app.Run();

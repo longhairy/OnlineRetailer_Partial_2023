@@ -4,6 +4,7 @@ using CustomerApi.Models;
 using SharedModels;
 using System;
 using CustomerApi.Infrastructure;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 string ConnectionString = "host=goose-01.rmq2.cloudamqp.com;virtualHost=suwoyvyw;username=suwoyvyw;password=MaEUT7-L6AdEM5jLGvtXTIBpLzGwfcLc";
@@ -48,9 +49,12 @@ using (var scope = app.Services.CreateScope())
 Task.Factory.StartNew(() =>
     new MessageListener(app.Services, ConnectionString).Start());
 
+app.UseHttpMetrics();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapMetrics();
 
 app.Run();
